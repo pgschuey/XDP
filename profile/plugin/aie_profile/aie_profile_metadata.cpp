@@ -762,6 +762,17 @@ namespace xdp {
       configMetrics[moduleIdx][tile] = metrics[i][1];
 
       // Grab channel numbers (if specified; memory tiles only)
+      if (metrics[i].size() == 3) {
+        try {
+          configChannel0[tile] = aie::convertStringToUint8(metrics[i][2]);
+        }
+        catch (...) {
+          std::stringstream msg;
+          msg << "Channel specifications in tile_based_" << modName << "_metrics are not valid and hence ignored.";
+          xrt_core::message::send(severity_level::warning, "XRT", msg.str());
+        }
+      }
+
       if (metrics[i].size() == 4) {
         try {
           configChannel0[tile] = aie::convertStringToUint8(metrics[i][2]);
