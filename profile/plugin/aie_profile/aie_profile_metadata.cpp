@@ -583,8 +583,10 @@ namespace xdp {
       // One channel specified
       if (metrics[i].size() == 3) {
         try {
+          auto channel0 = aie::convertStringToUint8(metrics[i][2]);
           for (auto& e : tiles) {
-            configChannel0[e] = aie::convertStringToUint8((metrics[i][2]));
+            configChannel0[e] = channel0;
+            configChannel1[e] = channel0;
           }
         }
         catch (...) {
@@ -764,7 +766,9 @@ namespace xdp {
       // Grab channel numbers (if specified; memory tiles only)
       if (metrics[i].size() == 3) {
         try {
-          configChannel0[tile] = aie::convertStringToUint8(metrics[i][2]);
+          auto channel0 = aie::convertStringToUint8(metrics[i][2]);
+          configChannel0[tile] = channel0;
+          configChannel1[tile] = channel0;
         }
         catch (...) {
           std::stringstream msg;
