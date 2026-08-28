@@ -776,8 +776,7 @@ namespace xdp {
           xrt_core::message::send(severity_level::warning, "XRT", msg.str());
         }
       }
-
-      if (metrics[i].size() == 4) {
+      else if (metrics[i].size() == 4) {
         try {
           configChannel0[tile] = aie::convertStringToUint8(metrics[i][2]);
           configChannel1[tile] = aie::convertStringToUint8(metrics[i][3]);

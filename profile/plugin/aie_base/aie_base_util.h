@@ -331,9 +331,6 @@ namespace xdp::aie {
     case XAIE_EVENT_PORT_STALLED_1_MEM_TILE:
     case XAIE_EVENT_PORT_IDLE_1_MEM_TILE:
       return 1;
-    case XAIE_EVENT_PORT_RUNNING_0_MEM_TILE:
-    case XAIE_EVENT_PORT_STALLED_0_MEM_TILE:
-    case XAIE_EVENT_PORT_IDLE_0_MEM_TILE:
     default:
       return 0;
     }
