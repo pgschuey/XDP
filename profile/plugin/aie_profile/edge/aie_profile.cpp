@@ -345,6 +345,10 @@ namespace xdp {
         aie::profile::modifyEvents(type, subtype, channel0, startEvents, metadata->getHardwareGen());
         endEvents = startEvents;
 
+        // configStreamSwitchPorts replaces these with whichever monitor port is
+        // free. That port is not the channel or stream being measured.
+        auto logicalStartEvents = startEvents;
+
         // TBD : Placeholder to configure AIE core with required profile counters.
         aie::profile::configEventSelections(aieDevInst, loc, type, metricSet, channel0, channel1);
         // TBD : Placeholder to configure shim tile with required profile counters.
@@ -366,6 +370,7 @@ namespace xdp {
         if (aie::profile::profileAPIMetricSet(metricSet)) {
           // Re-use the existing port running event for both the counters
           startEvents[startEvents.size()-1] = startEvents[0];
+          logicalStartEvents[logicalStartEvents.size()-1] = logicalStartEvents[0];
           
           // Use start events as End events for profile counters if threshold is not provided
           endEvents[endEvents.size()-1] = endEvents[0];
@@ -385,8 +390,9 @@ namespace xdp {
         for (int i=0; i < numFreeCtr; ++i) {
           auto startEvent    = startEvents.at(i);
           auto endEvent      = endEvents.at(i);
+          auto logicalEvent  = logicalStartEvents.at(i);
           auto resetEvent    = XAIE_EVENT_NONE_CORE;
-          auto portnum       = xdp::aie::getPortNumberFromEvent(startEvent);
+          auto portnum       = xdp::aie::getPortNumberFromEvent(logicalEvent);
           uint8_t channel    = (portnum == 0) ? channel0 : channel1;
 
           // Configure group event before reserving and starting counter
@@ -442,9 +448,9 @@ namespace xdp {
           uint16_t phyStartEvent = physicalEventIds.first;
           uint16_t phyEndEvent   = physicalEventIds.second;
 
-          // Get payload for reporting purposes
+          // Payload names the requested channel/stream, not the monitor port.
           uint64_t payload = getCounterPayload(aieDevInst, tileMetric.first, type, getXAIECol(tile.col), row, 
-                                               startEvent, metricSet, channel);
+                                               logicalEvent, metricSet, channel);
           // Store counter info in database
           std::string counterName = "AIE Counter " + std::to_string(counterId);
           (db->getStaticInfo()).addAIECounter(deviceId, counterId, getXAIECol(tile.col), row, i,
